@@ -9,6 +9,7 @@ class Index extends Controller
      */
     public function index()
     {
+
         return $this->fetch();
     }
 
@@ -16,5 +17,9 @@ class Index extends Controller
     {
 
         return $this->fetch();
+    }
+    public function read($id)
+    {
+        echo $id;die;
     }
 }

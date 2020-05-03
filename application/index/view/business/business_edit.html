@@ -11,19 +11,19 @@
                 <label for="username" class="layui-form-label">
                     <span class="x-red">*</span>商家名称</label>
                 <div class="layui-input-inline">
-                    <input type="text" id="merchant_name" name="merchant_name" required="" lay-verify="required" autocomplete="off" class="layui-input"></div>
+                    <input type="text" id="merchant_name" name="merchant_name" required="" lay-verify="required" autocomplete="off" class="layui-input" value="{$merchantInfo.merchant_name}"></div>
             </div>
             <div class="layui-form-item">
                 <label for="username" class="layui-form-label">
                     <span class="x-red">*</span>联系人名称</label>
                 <div class="layui-input-inline">
-                    <input type="text" id="username" name="username" required="" lay-verify="required" autocomplete="off" class="layui-input"></div>
+                    <input type="text" id="username" name="username" value="{$merchantInfo.username}" required="" lay-verify="required" autocomplete="off" class="layui-input"></div>
             </div>
             <div class="layui-form-item">
                 <label for="phone" class="layui-form-label">
                     <span class="x-red">*</span>联系电话</label>
                 <div class="layui-input-inline">
-                    <input type="text" id="phone" name="phone" required="" lay-verify="phone" autocomplete="off" class="layui-input"></div>
+                    <input type="text" id="phone" name="phone" required="" lay-verify="phone" value="{$merchantInfo.phone}" autocomplete="off" class="layui-input"></div>
             </div>
 
 
@@ -32,9 +32,9 @@
                     <span class="x-red">*</span>代理级别</label>
                 <div class="layui-input-inline">
                     <select id="agent_level" name="agent_level" class="valid">
-                        <option value="1">省代</option>
-                        <option value="2">市代</option>
-                        <option value="3">县代</option>
+                        <option {if condition="$merchantInfo.agent_level == 1"}selected{/if} value="1">省代</option>
+                        <option {if condition="$merchantInfo.agent_level == 2"}selected{/if} value="2">市代</option>
+                        <option {if condition="$merchantInfo.agent_level == 3"}selected{/if} value="3">县代</option>
                     </select>
                 </div>
             </div>
@@ -46,21 +46,23 @@
                     <select name="province" id="province" lay-filter="province">
                         <option value="0">请选择省</option>
                         {volist name="province" id="vol"}
-                        <option value="{$vol.areaId}">{$vol.areaName}</option>
+                        <option {in name="vol.areaId" value="$merchantInfo.province"}selected{/in} value="{$vol.areaId}">{$vol.areaName}</option>
                         {/volist}
                     </select>
                 </div>
                 <div class="layui-input-inline">
                     <!-- lay-filter="" 定义监听的元素 -->
                     <select name="city" lay-filter="city" id="city">
-
-                        <option value="">请选择市</option>
-
+                        {volist name="city" id="sv"}
+                        <option {in name="sv.areaId" value="$merchantInfo.city"}selected{/in} value="{$sv.areaId}">{$sv.areaName}</option>
+                        {/volist}
                     </select>
                 </div>
                 <div class="layui-input-inline" id='menu_parentid3'> <!--此选项即为要变化的选项-->
                     <select name="district" id="area">
-                        <option value="">请选择区</option>
+                        {volist name="area" id="av"}
+                        <option {in name="av.areaId" value="$merchantInfo.district"}selected{/in} value="{$av.areaId}">{$av.areaName}</option>
+                        {/volist}
                     </select>
                 </div>
             </div>
@@ -70,24 +72,25 @@
                 <label for="username" class="layui-form-label">
                     <span class="x-red">*</span>详细地址</label>
                 <div class="layui-input-inline">
-                    <input type="text" id="detail_address" name="detail_address" required="" lay-verify="required" autocomplete="off" class="layui-input"></div>
+                    <input type="text" id="detail_address" name="detail_address" value="{$merchantInfo.detail_address}" lay-verify="required" autocomplete="off" class="layui-input">
+                </div>
             </div>
 
             <div class="layui-form-item">
                 <label for="username" class="layui-form-label">
                     <span class="x-red">*</span>代理时间</label>
                 <div class="layui-input-inline">
-                    <input type="text" name="agent_time" id="date" lay-verify="required" placeholder="yyyy-MM-dd" autocomplete="off" class="layui-input">
-            </div>
+                    <input type="text" name="agent_time" id="date" lay-verify="required" placeholder="yyyy-MM-dd" autocomplete="off" class="layui-input" value="{$merchantInfo.start_time|substr=0,10} ~ {$merchantInfo.end_time|substr=0,10}">
+                </div>
 
 
+                <input type="hidden" name="merchant_id" id="merchant_id" value="{$merchantInfo.id}">
 
-
-<div class="layui-form-item">
-    <label for="L_repass" class="layui-form-label"></label>
-    <button class="layui-btn" lay-filter="add" lay-submit="">增加</button></div>
-</form>
-</div>
+                <div class="layui-form-item">
+                    <label for="L_repass" class="layui-form-label"></label>
+                    <button class="layui-btn" lay-filter="add" lay-submit="">提交</button></div>
+        </form>
+    </div>
 </div>
 <script>layui.use(['form', 'layer','laydate'],
     function() {
@@ -122,8 +125,9 @@
             function(data) {
 
                 var info = data['field'];
+
                 $.ajax({
-                    'url':"{:url('index/business/business_add')}",
+                    'url':"{:url('index/business/business_edit')}",
                     'type':"post",
                     'data':info,
                     'dataType':'json',
@@ -158,48 +162,48 @@
         //监听select 省 即为lay-filter 中的元素
         form.on('select(province)', function(data){
 
-                $("#city").empty();
-                $("#area").empty();
-               var provinceId = data.value;
-                   if (provinceId == '0'){
-                       return false;
-                   }
-               $("#province").children().first().remove();
-               var data = {"provinceId":provinceId};
-                $.ajax({
-                    'url':"{:url('index/business/ajax_city')}",
-                    'type':"post",
-                    'data':data,
-                    'dataType':"json",
-                    'success':function (response) {
-                        var status = response['status'];
-                        var message = response['message'];
-                            if(status == 0){
-                                layer.alert(message,{"icon":5});
-                                return false;
-                            }
-                        var info = response['data'];
-                        var data = info['city'];
-                            $.each(data,function (k,v) {
-                                var option = document.createElement('option');
-                                    $(option).text(v['areaName']);
-                                    $(option).attr('value',v['areaId']);
-                                    $("#city").append(option);
-
-                            })
-
-                            //渲染区
-                        var areaData = info['area'];
-
-                        $.each(areaData,function (k,v) {
-                            var option = document.createElement('option');
-                            $(option).text(v['areaName']);
-                            $(option).attr('value',v['areaId']);
-                            $("#area").append(option);
-                        })
-                        form.render("select");
+            $("#city").empty();
+            $("#area").empty();
+            var provinceId = data.value;
+            if (provinceId == '0'){
+                return false;
+            }
+            $("#province").children().first().remove();
+            var data = {"provinceId":provinceId};
+            $.ajax({
+                'url':"{:url('index/business/ajax_city')}",
+                'type':"post",
+                'data':data,
+                'dataType':"json",
+                'success':function (response) {
+                    var status = response['status'];
+                    var message = response['message'];
+                    if(status == 0){
+                        layer.alert(message,{"icon":5});
+                        return false;
                     }
-                });
+                    var info = response['data'];
+                    var data = info['city'];
+                    $.each(data,function (k,v) {
+                        var option = document.createElement('option');
+                        $(option).text(v['areaName']);
+                        $(option).attr('value',v['areaId']);
+                        $("#city").append(option);
+
+                    })
+
+                    //渲染区
+                    var areaData = info['area'];
+
+                    $.each(areaData,function (k,v) {
+                        var option = document.createElement('option');
+                        $(option).text(v['areaName']);
+                        $(option).attr('value',v['areaId']);
+                        $("#area").append(option);
+                    })
+                    form.render("select");
+                }
+            });
         });
 
         //监听市

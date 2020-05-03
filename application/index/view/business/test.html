@@ -68,7 +68,7 @@
                         <thead>
                         <tr>
                             <th>
-                                <input type="checkbox" lay-filter="checkFirst"  lay-skin="primary" value="0" id="first">
+                                <input type="checkbox" name="" lay-skin="primary">
                             </th>
                             <th>ID</th>
                             <th>商户名称</th>
@@ -88,7 +88,7 @@
 
                         <tr>
                             <td>
-                                <input type="checkbox" class="merchantbox" lay-skin="primary" value="{$vol.id}"></td>
+                                <input type="checkbox" name="" lay-skin="primary"></td>
                             <td>{$vol.id}</td>
                             <td>{$vol.merchant_name}</td>
                             <td>{$vol.username}</td>
@@ -162,8 +162,6 @@
             }
             var id = $(this).attr('id');
             var  data = {"status":status,"id":id};
-            console.log(data);
-            var _this = $(this);
             $.ajax({
                 'url':"{:url('index/business/business_status')}",
                 'type':"post",
@@ -172,21 +170,10 @@
                 'success':function (response) {
                     var status = response['status'];
                     var message = response['message'];
-
-                        $(_this).val(status);
-                        form.render('checkbox');
-                        if(status == 1){
-                            var iconInex = 6;
-                        }else{
-                            var iconInex = 5;
-                        }
-                        layer.alert(message,{icon:iconInex},function () {
-                            location.reload();
-                        });
+                    if(status == 0){
+                        layer.alert(message,{icon:5});
                         return false;
-
-
-
+                    }
 
                 }
             })
@@ -194,36 +181,6 @@
             //     offset: '6px'
             // });
             // layer.tips('温馨提示：请注意开关状态的文字可以随意定义，而不仅仅是ON|OFF', data.othis)
-        });
-
-        //监听复选框
-        form.on('checkbox(checkFirst)', function(data){
-            // console.log(data.elem); //得到checkbox原始DOM对象
-            // console.log(data.elem.checked); //是否被选中，true或者false
-            // console.log(data.value); //复选框value值，也可以通过data.elem.value得到
-            // console.log(data.othis.get(0)); //得到美化后的DOM对象
-            var  is_checked = $(data.othis.get(0)).hasClass('layui-form-checked');
-            var elem = $("input[class='merchantbox']");
-
-                 if(is_checked){
-
-                     //选中
-                     $.each(elem,function (k,v) {
-                         var default_check = $(v).next();
-                             $(default_check).addClass('layui-form-checked');
-                     })
-
-
-                 }else{
-                     //取消
-
-                     $.each(elem,function (k,v) {
-                         var default_check = $(v).next();
-                         $(default_check).removeClass('layui-form-checked');
-                     })
-
-
-                 }
         });
 
     });
@@ -294,45 +251,15 @@ function member_del(obj, id) {
 
 function delAll(argument) {
 
-    var checkbox = $(".layui-form-checked");
-    var length = checkbox.length;
+    var data = tableCheck.getData();
 
-        if(length == 0){
-            layer.msg('请选择需要删除的商家',{icon:5});
-            return false;
-        }
-        if(length == 1){
-            if($(checkbox).val() == 0){
-
-                layer.msg('请选择需要删除的商家',{icon:5});
-                return false;
-            }
-        }
-    var ids = '';
-    $.each(checkbox,function(k,v){
-        var elm = $(v).prev();
-        ids +=$(elm).val() + ',';
-    });
-
-    ids = ids.slice(0,-1);
-
-    layer.confirm('确认要删除吗？',
+    layer.confirm('确认要删除吗？' + data,
         function(index) {
-            $.ajax({
-                'url':"{:url('index/business/businss_dellAll')}",
-                'type':'post',
-                'data':'ids='+ids,
-                'dataType':'json',
-                'success':function (response) {
-                    var message = response['message'];
-                    //捉到所有被选中的，发异步进行删除
-                    layer.msg(message, {
-                        icon: 1
-                    });
-                    $(".layui-form-checked").not('.header').parents('tr').remove();
-                }
-            })
-
+            //捉到所有被选中的，发异步进行删除
+            layer.msg('删除成功', {
+                icon: 1
+            });
+            $(".layui-form-checked").not('.header').parents('tr').remove();
         });
 }</script>
 
