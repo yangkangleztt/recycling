@@ -67,7 +67,15 @@ Route::group('index',function (){
     //管理员状态操作
     Route::post('auth/admin_status','auth/admin_status');
 
-
+    /*
+     * 权限管理
+     * */
+    Route::get('auth/auth_list','auth/auth_list');
+    //管理员添加
+    Route::rule('auth/auth_add','auth/auth_add','GET|POST');
+    //管理员修改
+    Route::get('auth/auth_edit/:id','auth/auth_edit');
+    Route::post('auth/auth_edit','auth/auth_edit');
 
 })->prefix('index/')->middleware('Check');
 //后台登陆

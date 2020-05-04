@@ -18,14 +18,26 @@
             <div class="layui-card">
                 <div class="layui-card-body ">
                     <form class="layui-form layui-col-space5">
-                        <div class="layui-inline layui-show-xs-block">
-                            <input class="layui-input"  autocomplete="off" placeholder="开始日" name="start" id="start">
+
+                        <div class="layui-input-inline layui-show-xs-block">
+                            <select name="type">
+                                <option {if condition="$type == 3 "}selected{/if} value="3">账号类型</option>
+                                <option {if condition="$type == 1 "}selected{/if} value="1">总后台</option>
+                                <option {if condition="$type == 2 "}selected{/if} value="2">代理</option>
+
+                            </select>
+                        </div>
+
+                        <div class="layui-input-inline layui-show-xs-block">
+                            <select name="type">
+                                <option {if condition="$type == 3 "}selected{/if} value="3">账号类型</option>
+                                <option {if condition="$type == 1 "}selected{/if} value="1">总后台</option>
+                                <option {if condition="$type == 2 "}selected{/if} value="2">代理</option>
+
+                            </select>
                         </div>
                         <div class="layui-inline layui-show-xs-block">
-                            <input class="layui-input"  autocomplete="off" placeholder="截止日" name="end" id="end">
-                        </div>
-                        <div class="layui-inline layui-show-xs-block">
-                            <input type="text" name="username"  placeholder="请输入用户名" autocomplete="off" class="layui-input">
+                            <input type="text" name="name"  placeholder="请输入用户名" autocomplete="off" class="layui-input" value="{$name}">
                         </div>
                         <div class="layui-inline layui-show-xs-block">
                             <button class="layui-btn"  lay-submit="" lay-filter="sreach"><i class="layui-icon">&#xe615;</i></button>
@@ -34,19 +46,18 @@
                 </div>
                 <div class="layui-card-header">
                     <button class="layui-btn layui-btn-danger" onclick="delAll()"><i class="layui-icon"></i>批量删除</button>
-                    <button class="layui-btn" onclick="xadmin.open('添加用户','./admin-add.html',600,400)"><i class="layui-icon"></i>添加</button>
+                    <button class="layui-btn" onclick="xadmin.open('添加用户','/index/auth/admin_add',600,400)"><i class="layui-icon"></i>添加</button>
                 </div>
                 <div class="layui-card-body ">
                     <table class="layui-table layui-form">
                         <thead>
                         <tr>
                             <th>
-                                <input type="checkbox" name=""  lay-skin="primary">
+                                <input type="checkbox" name=""  lay-skin="primary" lay-filter="checkFirst" value="">
                             </th>
                             <th>ID</th>
                             <th>登录名</th>
-                            <th>手机</th>
-                            <th>邮箱</th>
+
                             <th>角色</th>
                             <th>加入时间</th>
                             <th>状态</th>
@@ -56,40 +67,38 @@
                         {volist name="admin" id="vol"}
                         <tr>
                             <td>
-                                <input type="checkbox" name=""  lay-skin="primary">
+                                <input type="checkbox" name=""  lay-skin="primary" class="adminbox" value="{$vol.id}">
                             </td>
-                            <td>1</td>
-                            <td>admin</td>
-                            <td>18925139194</td>
-                            <td>113664000@qq.com</td>
-                            <td>超级管理员</td>
-                            <td>2017-01-01 11:11:42</td>
+                            <td>{$vol.id}</td>
+                            <td>{$vol.name}</td>
+
+                            <td>{$vol.role_name}</td>
+                            <td>{$vol.add_time}</td>
                             <td class="td-status">
-                                <span class="layui-btn layui-btn-normal layui-btn-mini">已启用</span></td>
+                                {if condition="$vol.status == 1"}
+                                <span class="layui-btn layui-btn-normal layui-btn-mini" admin_id="{$vol.id}" onclick="admin_status(this)">已启用</span>
+                                {else /}
+                                <span class="layui-btn layui-btn-danger layui-btn-mini" admin_id="{$vol.id}" onclick="admin_status(this)">已禁用</span>
+                                {/if}
+
                             <td class="td-manage">
-                                <a onclick="member_stop(this,'10001')" href="javascript:;"  title="启用">
-                                    <i class="layui-icon">&#xe601;</i>
-                                </a>
-                                <a title="编辑"  onclick="xadmin.open('编辑','admin-edit.html')" href="javascript:;">
+
+                                <a title="编辑"  onclick="xadmin.open('编辑','/index/auth/admin_edit/{$vol.id}')" href="javascript:;">
                                     <i class="layui-icon">&#xe642;</i>
                                 </a>
-                                <a title="删除" onclick="member_del(this,'要删除的id')" href="javascript:;">
+                                <a title="删除" onclick="member_del(this,'{$vol.id}')" href="javascript:;">
                                     <i class="layui-icon">&#xe640;</i>
                                 </a>
                             </td>
                         </tr>
+                        {/volist}
                         </tbody>
                     </table>
                 </div>
                 <div class="layui-card-body ">
                     <div class="page">
                         <div>
-                            <a class="prev" href="">&lt;&lt;</a>
-                            <a class="num" href="">1</a>
-                            <span class="current">2</span>
-                            <a class="num" href="">3</a>
-                            <a class="num" href="">489</a>
-                            <a class="next" href="">&gt;&gt;</a>
+                           {$page}
                         </div>
                     </div>
                 </div>
@@ -112,6 +121,37 @@
         laydate.render({
             elem: '#end' //指定元素
         });
+
+        //监听复选框
+        form.on('checkbox(checkFirst)', function(data){
+            // console.log(data.elem); //得到checkbox原始DOM对象
+            // console.log(data.elem.checked); //是否被选中，true或者false
+            // console.log(data.value); //复选框value值，也可以通过data.elem.value得到
+            // console.log(data.othis.get(0)); //得到美化后的DOM对象
+            var  is_checked = $(data.othis.get(0)).hasClass('layui-form-checked');
+            var elem = $("input[class='adminbox']");
+
+            if(is_checked){
+
+                //选中
+                $.each(elem,function (k,v) {
+                    var default_check = $(v).next();
+                    $(default_check).addClass('layui-form-checked');
+                })
+
+
+            }else{
+                //取消
+
+                $.each(elem,function (k,v) {
+                    var default_check = $(v).next();
+                    $(default_check).removeClass('layui-form-checked');
+                })
+
+
+            }
+        });
+
     });
 
     /*用户-停用*/
@@ -140,23 +180,76 @@
 
     /*用户-删除*/
     function member_del(obj,id){
+
+
+
         layer.confirm('确认要删除吗？',function(index){
             //发异步删除数据
-            $(obj).parents("tr").remove();
-            layer.msg('已删除!',{icon:1,time:1000});
+            $.ajax({
+                'url':"{:url('index/auth/admin_del')}",
+                'type':'post',
+                'data':'id='+id,
+                'dataType':'json',
+                'success':function (response) {
+                    var message = response['message'];
+                    var status = response['status'];
+                    if(status == 1){
+                        var iconIndex = 6;
+                        $(obj).parents("tr").remove();
+                    }else{
+                        var iconIndex = 5;
+                    }
+
+                    layer.alert(message,{icon:iconIndex})
+                }
+            });
+
+            // $(obj).parents("tr").remove();
+            // layer.msg('已删除!',{icon:1,time:1000});
         });
+        return false;
     }
 
 
 
     function delAll (argument) {
 
-        var data = tableCheck.getData();
+        var checkbox = $(".layui-form-checked");
 
-        layer.confirm('确认要删除吗？'+data,function(index){
-            //捉到所有被选中的，发异步进行删除
-            layer.msg('删除成功', {icon: 1});
-            $(".layui-form-checked").not('.header').parents('tr').remove();
+        var length = checkbox.length;
+
+        var ids = '';
+        $.each(checkbox,function(k,v){
+            var elm = $(v).prev();
+            if($(elm).val() != ''){
+                ids +=$(elm).val() + ',';
+            }
+
+        });
+        if(ids == ''){
+            layer.msg('请选择需要删除的用户',{icon:5});
+            return false;
+        }
+        ids = ids.slice(0,-1);
+
+        layer.confirm('确认要删除吗？',function(index){
+            $.ajax({
+                'url':"{:url('index/auth/admin_delAll')}",
+                'type':'post',
+                'data':'ids='+ids,
+                'dataType':'json',
+                'success':function (response) {
+
+                    var message = response['message'];
+
+                    layer.msg(message, {
+                        icon: 1
+                    });
+                    $(".layui-form-checked").not('.header').parents('tr').remove();
+                }
+            });
+
+
         });
     }
 </script>
@@ -167,3 +260,44 @@
     s.parentNode.insertBefore(hm, s);
 })();</script>
 </html>
+<script>
+    //角色状态操作
+    function admin_status(_this) {
+        var id = $(_this).attr('admin_id');
+        var val = $(_this).text();
+        if(val == '已禁用'){
+            var status = 1;
+            var title = '已启用';
+            var css = 'layui-btn layui-btn-normal layui-btn-mini';
+        }else{
+            var status = 0;
+            var title = '已禁用';
+            var css = 'layui-btn layui-btn-danger layui-btn-mini';
+        }
+        var data = {"id":id,"status":status};
+        $.ajax({
+            'url':"{:url('index/auth/admin_status')}",
+            'type':"post",
+            'data':data,
+            'dataType':'json',
+            'success':function (response) {
+
+                var message = response['message'];
+                var status = response['status'];
+                if(status == 1){
+                    var iconIndex = 6;
+                }else{
+                    var iconIndex = 5;
+                }
+
+                if(status == 1){
+                    $(_this).text(title);
+                    $(_this).attr('class',css);
+                }
+                layer.alert(message,{icon:iconIndex})
+
+            }
+        })
+    }
+
+</script>

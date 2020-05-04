@@ -7,5 +7,6 @@
  */
 return [
     'page_role'      =>10,
-    'adminPage'     =>10
+    'adminPage'     =>10,
+    'authPage'      =>20
 ];
