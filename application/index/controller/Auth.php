@@ -151,4 +151,16 @@ class Auth extends  Controller
         }
     }
 
+
+    /*
+     * 管理员列表
+     * */
+    public function admin_list()
+    {
+        $admin = Db::name('admin')->where('is_del',1)->paginate(config('page.adminPage'));
+
+        $this->assign('admin',$admin);
+        return $this->fetch();
+    }
+
 }

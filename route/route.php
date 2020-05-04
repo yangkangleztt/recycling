@@ -51,6 +51,24 @@ Route::group('index',function (){
     //角色状态操作
     Route::post('auth/role_status','auth/role_status');
 
+    /*
+     * 管理员列表
+     * */
+    Route::get('auth/admin_list','auth/admin_list');
+    //管理员添加
+    Route::rule('auth/admin_add','auth/admin_add','GET|POST');
+    //管理员修改
+    Route::get('auth/admin_edit/:id','auth/admin_edit');
+    Route::post('auth/admin_edit','auth/admin_edit');
+    //管理员删除
+    Route::post('auth/admin_del','auth/admin_del');
+    //管理员批量删除
+    Route::post('auth/admin_delAll','auth/admin_delAll');
+    //管理员状态操作
+    Route::post('auth/admin_status','auth/admin_status');
+
+
+
 })->prefix('index/')->middleware('Check');
 //后台登陆
 Route::rule('index/login/login','index/login/login','GET|POST');

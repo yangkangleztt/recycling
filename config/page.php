@@ -6,5 +6,6 @@
  * Time: 16:53
  */
 return [
-    'page_role'      =>10
+    'page_role'      =>10,
+    'adminPage'     =>10
 ];
