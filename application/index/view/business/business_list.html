@@ -81,6 +81,7 @@
                             <th>代理开始时间</th>
                             <th>代理结束时间</th>
                             <th>商户状态</th>
+                            <th>服务小哥</th>
                             <th>操作</th></tr>
                         </thead>
                         <tbody>
@@ -112,6 +113,9 @@
                                 value="0"
                                 {/if}>
 
+                            </td>
+                            <td>
+                                <span class="layui-btn layui-btn-normal layui-btn-mini" onclick="checkServe('{$vol.id}')">点击查看</span>
                             </td>
                             <td class="td-manage">
                                 <a title="编辑" onclick="xadmin.open('编辑','/index/business/business_edit/{$vol.id}')" href="javascript:void(0);">
@@ -337,3 +341,10 @@ function delAll(argument) {
 }</script>
 
 </html>
+<script>
+    //点击查看服务小哥
+    function  checkServe(id) {
+
+        window.location.href = '/index/business/business_serve/'+id;
+    }
+</script>

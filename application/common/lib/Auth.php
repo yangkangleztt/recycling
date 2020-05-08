@@ -15,6 +15,7 @@ class Auth
 {
     public function authList()
     {
-        $authParent = Db::name('auth_rule')->where('status',1)->where('pid',0)->select();
+        $authParent = Db::name('auth_rule')->where('status',1)->where('pid',0)->paginate(config('page.authPage'));
+        return $authParent;
     }
 }

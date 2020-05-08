@@ -22,25 +22,22 @@
                 </label>
                 <table  class="layui-table layui-input-block">
                     <tbody>
+                    {volist name="auth" id="vol"}
                     <tr>
                         <td>
-                            <input type="checkbox" name="like1[write]" lay-skin="primary" lay-filter="father" title="用户管理">
+                            <input type="checkbox" {in name="vol.id" value="$roleInfo.rules"}checked{/in}  lay-skin="primary" class="parent" lay-filter="father" title="用户管理" value="{$vol.id}">
                         </td>
                         <td>
                             <div class="layui-input-block">
-                                <input name="id[]" lay-skin="primary" type="checkbox" title="用户停用" value="2">
-                                <input name="id[]" lay-skin="primary" type="checkbox" value="2" title="用户删除">
-                                <input name="id[]" lay-skin="primary" type="checkbox" value="2" title="用户修改">
-                                <input name="id[]" lay-skin="primary" type="checkbox" value="2" title="用户改密">
-                                <input name="id[]" lay-skin="primary" type="checkbox" value="2" title="用户列表">
-                                <input name="id[]" lay-skin="primary" type="checkbox" value="2" title="用户改密">
-                                <input name="id[]" lay-skin="primary" type="checkbox" value="2" title="用户列表">
-                                <input name="id[]" lay-skin="primary" type="checkbox" value="2" title="用户改密">
-                                <input name="id[]" lay-skin="primary" type="checkbox" value="2" title="用户列表">
+
+                                {volist name="$vol.child" id="cv"}
+                                <input lay-skin="primary" {in name="cv.id" value="$roleInfo.rules"}checked{/in} lay-filter="children" class="children" type="checkbox" title="{$cv.title}" value="{$cv.id}">
+                                {/volist}
+
                             </div>
                         </td>
                     </tr>
-
+                    {/volist}
                     </tbody>
                 </table>
             </div>
@@ -83,6 +80,24 @@
         //监听提交
         form.on('submit(edit)', function(data){
             var field = data.field;
+            var checkbox = $(".layui-form-checked");
+            var length = checkbox.length;
+
+
+            var ids = '';
+
+            $.each(checkbox,function(k,v){
+                var elm = $(v).prev();
+
+                if($(elm).val() != ''){
+
+
+                    ids +=$(elm).val() + ',';
+                }
+
+            });
+            ids = ids.slice(0,-1);
+            field['rules'] =  ids;
 
             $.ajax({
                 'url':"{:url('index/auth/role_edit')}",
@@ -103,6 +118,7 @@
                         var index = parent.layer.getFrameIndex(window.name);
                         //关闭当前frame
                         parent.layer.close(index);
+                        xadmin.father_reload();
                     });
 
                 }
@@ -121,7 +137,24 @@
                 form.render();
             }
         });
+        //监听子checkbox
+        form.on('checkbox(children)',function (data) {
+            var is_checked = false;
+            var children = $(".children");
+            $.each(children,function (k,v) {
+                var checked = $(v).next().hasClass('layui-form-checked');
+                if(checked){
+                    is_checked = true;
+                }
+            });
+            if(is_checked){
+                $(".parent").prop('checked',true);
+            }else{
+                $(".parent").prop('checked',false);
+            }
+            form.render();
 
+        })
 
     });
 </script>

@@ -6,7 +6,11 @@
  * Time: 16:53
  */
 return [
-    'page_role'      =>10,
+    'page_role'     =>10,
     'adminPage'     =>10,
-    'authPage'      =>20
+    'authPage'      =>20,
+    'orderPage'     =>30,
+    'userPage'      =>50,
+    'bannerPage'    =>5,
+    'feedbackPage'  =>20
 ];

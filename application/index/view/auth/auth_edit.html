@@ -14,7 +14,7 @@
                     <select id="type" name="pid" class="valid" lay-filter="type">
                         <option value="0">顶级权限</option>
                         {volist name="auth" id="sv"}
-                        <option value="{$sv.id}"><?php echo str_repeat('&emsp;',$sv['level'])?>{$sv.title}</option>
+                        <option {in name="sv.id" value="$authInfo.id"}selected{/in} value="{$sv.pid}"><?php echo str_repeat('&emsp;',$sv['level'])?>{$sv.title}</option>
                         {/volist}
                     </select>
                 </div>
@@ -26,7 +26,7 @@
                 </label>
                 <div class="layui-input-inline">
                     <input type="text" id="title" name="title" required="" lay-verify="required"
-                           autocomplete="off" class="layui-input">
+                           autocomplete="off" class="layui-input" value="{$authInfo.title}">
                 </div>
                 <div class="layui-form-mid layui-word-aux">
                     <span class="x-red">*</span>权限名称
@@ -40,7 +40,7 @@
                 </label>
                 <div class="layui-input-inline">
                     <input type="text" id="name" name="name" required="" lay-verify="required"
-                           autocomplete="off" class="layui-input">
+                           autocomplete="off" class="layui-input" value="{$authInfo.name}">
                 </div>
                 <div class="layui-form-mid layui-word-aux">
                     <span class="x-red">*</span>权限规则
@@ -55,19 +55,19 @@
                 </label>
                 <div class="layui-input-inline">
                     <input type="text" id="name" name="cate" required="" lay-verify="required"
-                           autocomplete="off" class="layui-input">
+                           autocomplete="off" class="layui-input" value="{$authInfo.cate}">
                 </div>
                 <div class="layui-form-mid layui-word-aux">
                     <span class="x-red">*</span>权限分类
                 </div>
             </div>
 
-
+            <input type="hidden" name="id" value="{$authInfo.id}">
             <div class="layui-form-item">
                 <label for="L_repass" class="layui-form-label">
                 </label>
                 <button  class="layui-btn" lay-filter="add" lay-submit="">
-                    增加
+                    提交
                 </button>
             </div>
         </form>
@@ -91,12 +91,12 @@
 
 
                 $.ajax({
-                    'url':"{:url('index/auth/auth_add')}",
+                    'url':"{:url('index/auth/auth_edit')}",
                     'type':'post',
                     'data':field,
                     'dataType':'json',
                     'success':function (response) {
-                        layer.alert("增加成功", {
+                        layer.alert(response['message'], {
                                 icon: 6
                             },
                             function() {

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html class="x-admin-sm">
+
+{include file="common/header" /}
+
+<body>
+<div class="x-nav">
+            <span class="layui-breadcrumb">
+                <a href="">首页</a>
+                <a href="">演示</a>
+                <a>
+                    <cite>导航元素</cite></a>
+            </span>
+    <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" onclick="location.reload()" title="刷新">
+        <i class="layui-icon layui-icon-refresh" style="line-height:30px"></i>
+    </a>
+</div>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-body ">
+                    <form class="layui-form layui-col-space5">
+
+
+                    </form>
+                </div>
+
+                <div class="layui-card-body ">
+                    <table class="layui-table layui-form">
+                        <thead>
+                        <tr >
+
+                            <th colspan="2" style="text-align: center">订单信息</th>
+                        </tr>
+
+
+
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>订单编号：{$orderInfo.order_number}</td>
+                            <td>下单时间：{$orderInfo.place_time}</td>
+
+                        </tr>
+                        <tr>
+                            <td>订单总金额：{$orderInfo.total_price}</td>
+                            <td>订单预估重量：{$orderInfo.depict}</td>
+                        </tr>
+                        <tr>
+                            <td>支付状态：{if condition="$orderInfo.pay_status == 0"}  <span class="layui-btn layui-btn-danger">待支付</span>  {else /} <span class="layui-btn layui-btn-normal">已支付</span>{/if}</td>
+                            <td>服务状态：
+                                {switch name="$orderInfo.status" id=""}
+                                {case value="0"}待服务{/case}
+                                {case value="1"}服务中{/case}
+                                {case value="2"}已取消{/case}
+                                {case value="3"}已完成{/case}
+
+                                {/switch}
+                            </td>
+                        </tr>
+
+
+
+                        <tr>
+                            <td>预约服务时间：{$orderInfo.order_time}</td>
+                            <td colspan="2">订单完成时间：{$orderInfo.out_time}</td>
+                        </tr>
+
+                        <tr>
+                            <td>订单服务小哥名称：{$orderInfo.full_name}</td>
+                            <td colspan="2">订单服务小哥电话：{$orderInfo.mobile}</td>
+                        </tr>
+
+                        </tbody>
+                    </table>
+
+                    <table class="layui-table layui-form">
+                        <thead>
+                        {volist name="$orderDetail" id="vol"}
+                        <tr >
+                            <th colspan="5" style="text-align: center">订单详情信息</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>产品分类：{$vol.cname}</td>
+                            <td>产品单价：{$vol.prices}</td>
+
+                            <td>订单重量：{$vol.weight}</td>
+                            <td>订单总价：{$vol.total}</td>
+                            <td>产品商家：{$vol.merchant_name}</td>
+                        </tr>
+                        {/volist}
+
+                        </tbody>
+
+                    </table>
+
+                    <table class="layui-table layui-form">
+                        <thead>
+                        <tr >
+                            <th colspan="6" style="text-align: center">下单用户信息</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>客户姓名：{$orderInfo.username}</td>
+                            <td>客户电话：{$orderInfo.phone}</td>
+
+                            <td>省：{$orderInfo.province}</td>
+                            <td>市：{$orderInfo.city}</td>
+                            <td>区：{$orderInfo.district}</td>
+                            <td>客户收货地址：{$orderInfo.address_details}</td>
+
+
+                        </tr>
+
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+                <div class="layui-card-body ">
+                    <div class="page">
+                        <div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script>layui.use(['laydate', 'form'],
+    function() {
+        var laydate = layui.laydate;
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#start' //指定元素
+        });
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#end' //指定元素
+        });
+    });
+
+/*用户-停用*/
+function member_stop(obj, id) {
+    layer.confirm('确认要停用吗？',
+        function(index) {
+
+            if ($(obj).attr('title') == '启用') {
+
+                //发异步把用户状态进行更改
+                $(obj).attr('title', '停用');
+                $(obj).find('i').html('&#xe62f;');
+
+                $(obj).parents("tr").find(".td-status").find('span').addClass('layui-btn-disabled').html('已停用');
+                layer.msg('已停用!', {
+                    icon: 5,
+                    time: 1000
+                });
+
+            } else {
+                $(obj).attr('title', '启用');
+                $(obj).find('i').html('&#xe601;');
+
+                $(obj).parents("tr").find(".td-status").find('span').removeClass('layui-btn-disabled').html('已启用');
+                layer.msg('已启用!', {
+                    icon: 5,
+                    time: 1000
+                });
+            }
+
+        });
+}
+
+/*用户-删除*/
+function member_del(obj, id) {
+    layer.confirm('确认要删除吗？',
+        function(index) {
+            //发异步删除数据
+            $(obj).parents("tr").remove();
+            layer.msg('已删除!', {
+                icon: 1,
+                time: 1000
+            });
+        });
+}
+
+function delAll(argument) {
+
+    var data = tableCheck.getData();
+
+    layer.confirm('确认要删除吗？' + data,
+        function(index) {
+            //捉到所有被选中的，发异步进行删除
+            layer.msg('删除成功', {
+                icon: 1
+            });
+            $(".layui-form-checked").not('.header').parents('tr').remove();
+        });
+}</script>
+
+</html>

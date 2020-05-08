@@ -72,6 +72,9 @@ class Auth extends  Controller
                 return Util::show(config('code.error'),'添加失败');
             }
         }else{
+            $auth = getAuthSort();
+//            dump($auth);die;
+            $this->assign('auth',$auth);
             return $this->fetch();
         }
 
@@ -101,6 +104,9 @@ class Auth extends  Controller
         }else{
             $id = request()->route('id');
             $roleInfo = Db::name('auth_group')->find($id);
+            $auth = getAuthSort();
+
+            $this->assign('auth',$auth);
             $this->assign('roleInfo',$roleInfo);
             return $this->fetch();
         }
@@ -351,12 +357,13 @@ class Auth extends  Controller
      * */
     public function auth_list()
     {
-        $auth = Db::name('auth_rule')->where('status',1)->paginate(config('page.authPage'));
 
-        $page = $auth->render();
+        $auth = Db::name('auth_rule')->where('status',1)->select();
+        $auth = getTree($auth);
+
+
 
         $this->assign('auth',$auth);
-        $this->assign('page',$page);
         return $this->fetch();
     }
     /*
@@ -365,12 +372,132 @@ class Auth extends  Controller
     public function auth_add()
     {
         if(request()->isPost()){
-
+            $data = input('post.');
+            //判断权限规则是否存在
+            $name = $data['name'];
+            if(empty($name)){
+                return Util::show(config('code.error'),'请填写权限规则');
+            }
+            $title =  $data['title'];
+            if(empty($title)){
+                return Util::show(config('code.error'),'请填写权限名称');
+            }
+            $auth_rule_exit = Db::name('auth_rule')->where('name',$data['name'])->find();
+            if($auth_rule_exit){
+                return Util::show(config('error'),'该权限名称已经存在，请勿重复提交');
+            }
+            $arr = [
+                'name'      =>$data['name'],
+                'title'     =>$data['title'],
+                'pid'       =>$data['pid'],
+                'status'    =>1,
+                'cate'      =>$data['cate']
+            ];
+            $res = Db::name('auth_rule')->insert($arr);
+            if($res){
+                return Util::show(config('success'),'添加成功');
+            }else{
+                return Util::show(config('error'),'添加失败');
+            }
         }else{
+            $auth = Db::name('auth_rule')->where('status',1)->select();
+            $auth = getTree($auth);
+
+            $this->assign('auth',$auth);
+            return $this->fetch();
+        }
+
+
+    }
+    //权限节点编辑
+    public function auth_edit()
+    {
+        if(request()->isPost()){
+            $data = input('post.');
+            //判断权限规则是否存在
+            $name = $data['name'];
+            if(empty($name)){
+                return Util::show(config('code.error'),'请填写权限规则');
+            }
+            $title =  $data['title'];
+            if(empty($title)){
+                return Util::show(config('code.error'),'请填写权限名称');
+            }
+            $auth_rule_exit = Db::name('auth_rule')->where('id','neq',$data['id'])->where('name',$data['name'])->find();
+            if($auth_rule_exit){
+                return Util::show(config('error'),'该权限名称已经存在，请勿重复提交');
+            }
+            $arr = [
+                'name'      =>$data['name'],
+                'title'     =>$data['title'],
+                'pid'       =>$data['pid'],
+                'status'    =>1,
+                'cate'      =>$data['cate']
+            ];
+            $res = Db::name('auth_rule')->where('id',$data['id'])->update($arr);
+            if($res){
+                return Util::show(config('success'),'修改成功');
+            }else{
+                return Util::show(config('error'),'修改失败');
+            }
+        }else{
+
+            $id = request()->route('id');
+            if(empty($id)){
+                return Util::show(config('code.error'),'参数有误');
+            }
+            $auth = Db::name('auth_rule')->where('status',1)->select();
+            $auth = getTree($auth);
+            $authInfo = Db::name('auth_rule')->where('id',$id)->find();
+            $this->assign('auth',$auth);
+            $this->assign('authInfo',$authInfo);
             return $this->fetch();
         }
     }
 
+    /*
+    * 权限删除
+    * */
+    public function auth_del()
+    {
+        $data = input('post.');
+        //先判断该权限是否有子权限，否则无法删除
+        $child_auth = Db::name('auth_rule')->where('pid',$data['id'])->find();
+        if($child_auth){
 
+            return Util::show(config('code.error'),'该权限拥有子权限无法删除');
+        }
+        $res = Db::name('auth_rule')->where('id',$data['id'])->setField('status',2);
+        if($res){
+            return Util::show(config('code.success'),'操作成功');
+        }else{
+            return Util::show(config('code.error'),'操作失败');
+        }
+    }
+
+
+    /*
+    * 权限批量删除
+    * */
+    public function auth_delAll()
+    {
+        $data = input('post.');
+        $ids = $data['ids'];
+        //先判断该权限是否有子权限，否则无法删除
+        $auth = Db::name('auth_rule')->where("id in ($ids)")->select();
+        foreach($auth as $k=>$v){
+            $childId = $v['id'];
+            $child_auth = Db::name('auth_rule')->where('pid',$childId)->select();
+            if($child_auth){
+
+               continue;
+            }else{
+                $res = Db::name('auth_rule')->where('id',$v['id'])->setField('status',2);
+            }
+        }
+
+        return Util::show(config('code.success'),'操作成功');
+
+    }
 
 }

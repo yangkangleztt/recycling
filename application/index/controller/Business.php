@@ -111,6 +111,15 @@ class Business extends Controller
                 return $result;
             }
             $data = $content['data'];
+            //先判断会员身份
+            if(empty($data['uid'])){
+                return Util::show(config('code.error'),'请选择会员');
+            }
+            $userExit = Db::name('merchant')->where('uid',$data['uid'])->find();
+            if($userExit){
+                //该会员已被占用
+                return Util::show(config('code.error'),'该会员已被占用');
+            }
             $res = Db::name('merchant')->insert($data);
             if($res){
                 //添加成功
@@ -121,6 +130,8 @@ class Business extends Controller
 
         }else{
             $province = Area::getProvince();
+            $user = Db::name('user')->select();
+            $this->assign('user',$user);
             $this->assign('province',$province);
             return $this->fetch();
         }
@@ -179,13 +190,21 @@ class Business extends Controller
             if($content['status'] == 0){
                 return $result;
             }
+            if(empty($data['uid'])){
+                return Util::show(config('code.error'),'请选择会员');
+            }
             //进行修改操作
-
-
             $data = $content['data'];
+            $uid = $data['uid'];
+
             $id = $data['merchant_id'];
             unset($data['merchant_id']);
-
+            $merchantInfo = Db::name('merchant')->find($id);
+            $oldUid = $merchantInfo['uid'];
+            $userExit = Db::name('merchant')->where('uid',$uid)->where('uid','neq',$oldUid)->find();
+            if($userExit){
+                return Util::show(config('code.error'),'该会员已被占用');
+            }
             $res = Db::name('merchant')->where('id',$id)->update($data);
             if($res){
                 return Util::show(config('code.success'),'修改成功');
@@ -201,7 +220,8 @@ class Business extends Controller
             $data = Area::getCity($merchantInfo['province']);
             //json对象转为普通数组
             $info = json_decode($data->getContent(),true);
-
+            $user = Db::name('user')->select();
+            $this->assign('user',$user);
             $this->assign('province',$province);
             $this->assign('city',$info['data']['city']);
             $this->assign('area',$info['data']['area']);
@@ -311,6 +331,61 @@ class Business extends Controller
             return Util::show(config('code.succes'),'删除成功');
         }else{
             return Util::show(config('code.error'),'删除失败');
+        }
+    }
+
+    //商家服务小哥列表
+    public function business_serve($id)
+    {
+        $full_name = '';
+        $nickname = '';
+        $where = [];
+        $param = request()->param();
+        if(isset($param['full_name'])){
+            $full_name = $param['full_name'];
+            if(!empty($full_name)){
+                $where[] = array('a.full_name','like',"$full_name");
+            }
+
+        }
+
+        if(isset($param['nickname'])){
+            $nickname = $param['nickname'];
+            if(!empty($nickname)){
+                $where[] = array('c.nickname','like','%'.base64_encode($nickname).'%');
+            }
+
+        }
+
+        $serve = Db::name('serve')
+            ->alias('a')
+            ->join('merchant b','a.merchant_id = b.id')
+            ->join('user c','a.user_id = c.id')
+            ->where('a.merchant_id',$id)
+            ->field('a.*,b.merchant_name,c.nickname')
+            ->where($where)
+            ->order('a.id desc')
+            ->paginate();
+
+        $page = $serve->render();
+        $this->assign('full_name',$full_name);
+        $this->assign('nickname',$nickname);
+        $this->assign('page',$page);
+        $this->assign('serve',$serve);
+        return $this->fetch();
+    }
+
+    //商家服务小哥状态操作
+    public function serve_status()
+    {
+        $data = input('post.');
+        $id = $data['id'];
+        $status = $data['status'];
+        $res = Db::name('serve')->where('id',$id)->setField('status',$status);
+        if($res){
+            return Util::show(config('code.success'),'操作成功');
+        }else{
+            return Util::show(config('code.error'),'操作失败');
         }
     }
 }

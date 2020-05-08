@@ -26,6 +26,17 @@
                     <input type="text" id="phone" name="phone" required="" lay-verify="phone" value="{$merchantInfo.phone}" autocomplete="off" class="layui-input"></div>
             </div>
 
+            <div class="layui-inline">
+                <label class="layui-form-label">会员选择</label>
+                <div class="layui-input-inline">
+                    <select name="uid" lay-verify="required" lay-search="">
+                        <option value="">直接选择或搜索选择</option>
+                        {volist name="user" id="sv"}
+                        <option {in name="sv.id" value="$merchantInfo.uid"}selected{/in} value="{$sv.id}">{$sv.nickname|base64_decode}</option>
+                        {/volist}
+                    </select>
+                </div>
+            </div>
 
             <div class="layui-form-item">
                 <label for="username" class="layui-form-label">
@@ -150,6 +161,7 @@
                             var index = parent.layer.getFrameIndex(window.name);
                             //关闭当前frame
                             parent.layer.close(index);
+                            xadmin.father_reload();
 
                         })
                     }

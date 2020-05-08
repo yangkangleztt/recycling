@@ -19,21 +19,8 @@
                 <div class="layui-card-body ">
                     <form class="layui-form layui-col-space5">
 
-                        <div class="layui-input-inline layui-show-xs-block">
-                            <select name="type">
-                                <option  value="3">账号类型</option>
-                                <option  value="1">总后台</option>
-                                <option  value="2">代理</option>
 
-                            </select>
-                        </div>
 
-                        <div class="layui-inline layui-show-xs-block">
-                            <input type="text" name="name"  placeholder="请输入用户名" autocomplete="off" class="layui-input" value="">
-                        </div>
-                        <div class="layui-inline layui-show-xs-block">
-                            <button class="layui-btn"  lay-submit="" lay-filter="sreach"><i class="layui-icon">&#xe615;</i></button>
-                        </div>
                     </form>
                 </div>
                 <div class="layui-card-header">
@@ -45,7 +32,7 @@
                         <thead>
                         <tr>
                             <th>
-                                <input type="checkbox" name=""  lay-skin="primary">
+                                <input type="checkbox" name=""  lay-skin="primary" lay-filter="checkFirst" value="0">
                             </th>
                             <th>ID</th>
                             <th>权限规则</th>
@@ -57,17 +44,17 @@
                         {volist name="auth" id="vol"}
                         <tr>
                             <td>
-                                <input type="checkbox" name=""  lay-skin="primary">
+                                <input type="checkbox" name="" auth_id = '{$vol.id}' lay-skin="primary" class="authbox">
                             </td>
                             <td>{$vol.id}</td>
-                            <td>{$vol.name}</td>
+                            <td><?php echo str_repeat('---',$vol['level'])?>{$vol.name}</td>
                             <td>{$vol.title}</td>
                             <td>{$vol.cate}</td>
                             <td class="td-manage">
-                                <a title="编辑"  onclick="xadmin.open('编辑','xxx.html')" href="javascript:;">
+                                <a title="编辑"  onclick="xadmin.open('编辑','/index/auth/auth_edit/{$vol.id}')" href="javascript:;">
                                     <i class="layui-icon">&#xe642;</i>
                                 </a>
-                                <a title="删除" onclick="member_del(this,'要删除的id')" href="javascript:;">
+                                <a title="删除" onclick="member_del(this,'{$vol.id}')" href="javascript:;">
                                     <i class="layui-icon">&#xe640;</i>
                                 </a>
                             </td>
@@ -79,7 +66,7 @@
                 <div class="layui-card-body ">
                     <div class="page">
                         <div>
-                            {$page|raw}
+
                         </div>
                     </div>
                 </div>
@@ -102,6 +89,37 @@
         laydate.render({
             elem: '#end' //指定元素
         });
+
+        //监听复选框
+        form.on('checkbox(checkFirst)', function(data){
+            // console.log(data.elem); //得到checkbox原始DOM对象
+            // console.log(data.elem.checked); //是否被选中，true或者false
+            // console.log(data.value); //复选框value值，也可以通过data.elem.value得到
+            // console.log(data.othis.get(0)); //得到美化后的DOM对象
+            var  is_checked = $(data.othis.get(0)).hasClass('layui-form-checked');
+            var elem = $("input[class='authbox']");
+
+            if(is_checked){
+
+                //选中
+                $.each(elem,function (k,v) {
+                    var default_check = $(v).next();
+                    $(default_check).addClass('layui-form-checked');
+                })
+
+
+            }else{
+                //取消
+
+                $.each(elem,function (k,v) {
+                    var default_check = $(v).next();
+                    $(default_check).removeClass('layui-form-checked');
+                })
+
+
+            }
+        });
+
     });
 
     /*用户-停用*/
@@ -130,10 +148,29 @@
 
     /*用户-删除*/
     function member_del(obj,id){
+
+
+
         layer.confirm('确认要删除吗？',function(index){
+            var data = {"id":id};
             //发异步删除数据
-            $(obj).parents("tr").remove();
-            layer.msg('已删除!',{icon:1,time:1000});
+            $.ajax({
+                'url':"{:url('index/auth/auth_del')}",
+                'type':'post',
+                'data':data,
+                'dataType':'json',
+                'success':function (response) {
+                    console.log(response);
+                    var status  = response['status'];
+                    var message = response['message'];
+                    if(status == 1){
+                        $(obj).parents("tr").remove();
+                    }
+
+                    layer.alert(message,{icon:6})
+                }
+            });
+           return false;
         });
     }
 
@@ -141,12 +178,52 @@
 
     function delAll (argument) {
 
-        var data = tableCheck.getData();
+        var checkbox = $(".layui-form-checked");
+        var length = checkbox.length;
 
-        layer.confirm('确认要删除吗？'+data,function(index){
+        if(length == 0){
+            layer.msg('请选择需要删除的节点',{icon:5});
+            return false;
+        }
+        if(length == 1){
+            if($(checkbox).val() == 0){
+
+                layer.msg('请选择需要删除的节点',{icon:5});
+                return false;
+            }
+        }
+        var ids = '';
+        $.each(checkbox,function(k,v){
+            var elm = $(v).prev();
+            if($(elm).attr('auth_id') !== undefined){
+                ids +=$(elm).attr('auth_id') + ',';
+            }
+
+
+        });
+
+        ids = ids.slice(0,-1);
+
+        layer.confirm('确认要删除吗？',function(index){
+            $.ajax({
+                'url':"{:url('index/auth/auth_delAll')}",
+                'type':'post',
+                'data':'ids='+ids,
+                'dataType':'json',
+                'success':function (response) {
+                    console.log(response);
+                    var status  = response['status'];
+                    var message = response['message'];
+
+
+                    layer.alert(message,{icon:6},function () {
+                        location.reload();
+                    })
+                }
+            });
             //捉到所有被选中的，发异步进行删除
-            layer.msg('删除成功', {icon: 1});
-            $(".layui-form-checked").not('.header').parents('tr').remove();
+            // layer.msg('删除成功', {icon: 1});
+            // $(".layui-form-checked").not('.header').parents('tr').remove();
         });
     }
 </script>

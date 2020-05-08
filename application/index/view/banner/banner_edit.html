@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html class="x-admin-sm">
+
+{include file="common/header" /}
+<body>
+<div class="layui-fluid">
+    <div class="layui-row">
+        <form class="layui-form">
+
+
+            <div class="layui-form-item">
+                <label for="L_username" class="layui-form-label">
+                    <span class="x-red">*</span>轮播图名称</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="banner_name" name="banner_name" value="{$bannerInfo.banner_name}" required="" lay-verify="banner_name" autocomplete="off" class="layui-input"></div>
+            </div>
+            <input type="hidden" name="id" value="{$bannerInfo.id}">
+            <input type="hidden" name="banner_img" id="banner_img" value="{$bannerInfo.banner_img}">
+            <div class="layui-form-item">
+                <label for="L_username" class="layui-form-label">
+                    <span class="x-red">*</span>跳转链接</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="banner_url" name="banner_url" value="{$bannerInfo.banner_url}" required="" lay-verify="nikename" autocomplete="off" class="layui-input"></div>
+            </div>
+
+            <div class="layui-form-item">
+                <label for="L_username" class="layui-form-label">
+                    <span class="x-red">*</span>轮播图上传</label>
+
+                <button type="button" class="layui-btn" id="test1">上传图片</button>
+                <div class="layui-upload-list">
+                    <img class="layui-upload-img" id="demo1" style="width: 100px;">
+                    <p id="demoText"></p>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label for="L_repass" class="layui-form-label"></label>
+                <button class="layui-btn" lay-filter="add" lay-submit="">提交</button></div>
+        </form>
+    </div>
+</div>
+<script>layui.use(['form', 'layer','jquery','upload'],
+    function() {
+        $ = layui.jquery;
+        var form = layui.form,
+            layer = layui.layer,
+            upload = layui.upload;
+
+        //自定义验证规则
+        form.verify({
+            banner_name: function(value) {
+                if (value.length == '') {
+                    return '请输入轮播图名称';
+                }
+            },
+            pass: [/(.+){6,12}$/, '密码必须6到12位'],
+            repass: function(value) {
+                if ($('#L_pass').val() != $('#L_repass').val()) {
+                    return '两次密码不一致';
+                }
+            }
+        });
+
+        //监听提交
+        form.on('submit(add)',
+            function(data) {
+                var field = data['field'];
+                var banner_name = data['field']['banner_name'];
+                var banner_img = data['field']['banner_img'];
+
+                if(banner_name == ''){
+                    layer.alert('请输入轮播图名称',{icon:5});
+                    return false;
+                }
+
+                if(banner_img == ''){
+                    layer.alert('请上传轮播图',{icon:5});
+                    return false;
+                }
+                $.ajax({
+                    'url':"{:url('index/banner/banner_edit')}",
+                    'type':"post",
+                    'data':field,
+                    'dataType':'json',
+                    'success':function (response) {
+
+                        var status = response['status'];
+                        var message = response['message'];
+                        if(status == 1){
+                            var iconIndex = 6;
+                        }else{
+                            var iconIndex = 5;
+                        }
+                        layer.alert(message,{icon:iconIndex},function () {
+                            //关闭当前frame
+                            xadmin.close();
+                            // 可以对父窗口进行刷新
+                            xadmin.father_reload();
+                        })
+                    }
+                })
+
+                return false;
+
+            });
+
+        //普通图片上传
+        var uploadInst = upload.render({
+            elem: '#test1'
+            ,url: '/index/banner/banner_upload' //改成您自己的上传接口
+            ,before: function(obj){
+                //预读本地文件示例，不支持ie8
+                obj.preview(function(index, file, result){
+                    $('#demo1').attr('src', result); //图片链接（base64）
+                });
+            }
+            ,done: function(res){
+
+                var status = res['status'];
+                var message = res['message'];
+                var url = res['data']['url'];
+
+                //如果上传失败
+                if(status == 1){
+                    console.log(123);
+                    //上传成功
+                    $("#banner_img").val(url);
+                    return layer.msg('上传成功');
+                }else{
+                    //失败
+                    return layer.msg(message);
+                    $("#banner_img").val('');
+                }
+
+
+
+
+            }
+            ,error: function(){
+                //演示失败状态，并实现重传
+                var demoText = $('#demoText');
+                demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
+                demoText.find('.demo-reload').on('click', function(){
+                    uploadInst.upload();
+                });
+            }
+        });
+
+    });</script>
+<script>var _hmt = _hmt || []; (function() {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?b393d153aeb26b46e9431fabaf0f6190";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();</script>
+</body>
+
+</html>
