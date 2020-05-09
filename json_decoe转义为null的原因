@@ -1,0 +1,2 @@
+$data = stripslashes(html_entity_decode($info)); //$info是传递过来的json字符串
+$data = json_decode($data,TRUE);
