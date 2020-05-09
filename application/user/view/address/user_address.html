@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="textml; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta content="telephone=no" name="format-detection">
+<meta charset="utf-8">
+<title>添加地址</title>
+<!-- <link href="/static/user/css/all.css" rel="stylesheet" type="text/css" /> -->
+<link href="/static/user/css/content.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="/static/user/js/jquery-1.6.2.min.js"></script>
+<script type="text/javascript" src="/static/user/layui/layui.all.js"></script>
+<link href="/static/user/layui/css/layui.css" rel="stylesheet" type="text/css" />
+
+
+</head>
+
+<body style="background-color:#f2f2f2; ">
+
+
+<div class="wrap">
+
+<!--添加地址 start-->
+
+  <div class="tjfwdz px22">
+    <p><span>联系姓名</span><em class="lxxmtb"><input type="text" name="username" value="" placeholder="请填写联系人姓名"  id="username"/></em></p>
+    <p style=" border:none;"><span>手机号码</span><em><input type="text" name="phone" value="" placeholder="请填写手机号" id="phone"/></em></p>
+  </div>
+ 
+ 
+
+
+  <!--详细地址 start-->
+   
+<div class="nysjdz px22">
+   
+   <div class="dzbt">
+   <p>详细地址</p>
+   </div>
+
+   <div class="xzdzhi">
+   <p>
+       <select name="province" id="selProvince" value="">
+           <option value="0">请选择省</option>
+  
+        
+      </select>
+   </p>
+   <p>
+    <select name=""  class="city" id="selCity">
+      <option value="请选择市">请选择市</option>
+    </select>
+   </p>
+   <p>
+    <select name="" class="area"  id="selCountry">
+      <option value="请选择区">请选择区</option>
+    </select>
+   </p>
+   </div>
+
+
+   <div class="srxxxi">
+    <p><input type="text" name="address_details" value="" placeholder="请填写详细地址" id='address_details' /></p>
+   </div>
+
+</div>   
+   
+
+
+<!--添加地址 start-->
+<div class="lbxjdz px22">
+  <p><input type="button" value="保存并使用"   value="提交" onclick="btn();" /></p>
+</div>
+
+ 
+</div>
+<script type="text/javascript">
+$(function () {
+     //获取省
+     $.get("{:url('address/ajax_Province')}",function(data){
+       var data = data;
+       for(var i=0;i<data.length;i++){
+         $('#selProvince').append('<option value='+data[i].areaId+'>'+data[i].areaName+'</option>');
+         }
+      })
+      //省与市级二级联动
+       $('#selProvince').change(function () {
+                $('#selCity').children().not(':eq(0)').remove();
+                $('#selCountry').children().not(':eq(0)').remove();
+                iNum1 = $(this).children('option:selected').val();
+                $.post("{:url('address/ajax_city')}",{provinceId:iNum1},function(city){
+                    var aaCity = city.data.city;
+                for(var j=0;j<aaCity.length;j++){
+                    $('#selCity').append('<option  value='+aaCity[j].areaId+'>'+aaCity[j].areaName+'</option>');
+                 }
+             });
+        });
+      //市与县的联动
+      $('#selCity').change(function () {
+            $('#selCountry').children().not(':eq(0)').remove();
+            iNum2 = $(this).children('option:selected').val();
+             $.post("{:url('address/ajax_area')}",{cityId:iNum2},function(city){
+              var area = city.data;
+              for(var k=0;k<area.length;k++){
+                $('#selCountry').append('<option>'+area[k].areaName+'</option>');
+            }
+          });
+        });
+
+
+    });
+  function btn()
+  {
+
+     var username  = $('#username').val();//用户姓名
+     var phone = $('#phone').val();//用户手机号
+     var province = $('#selProvince option:selected').html(); //获取选中的省
+     var city = $('#selCity option:selected').html(); //获取选中的市
+     var district = $('#selCountry option:selected').html(); //获取选中的区县
+     var address_details = $('#address_details').val();//获取
+      if(isChinaName(username) == false){
+          layer.msg('请填写正确姓名');
+          return false;
+      }
+      //正则手机号
+      if(isPhoneNo(phone) == false){
+          layer.msg('请填写正确的手机号');
+          return false;
+      }
+      if (province == '请选择省' || city == '请选择市' || district=='请选择区') {
+          layer.msg('请填写正确地址');
+          return false;
+      }
+      if(address_details == ''){
+           layer.msg('请填写详细地址');
+          return false;
+      }
+      var data = {username:username,phone:phone,province:province,city:city,district:district,address_details:address_details};
+      $.post("{:url('address/user_address')}",data,function(result){
+           if(result.state == 'success'){
+                  
+                layer.msg('添加成功', {
+                  icon: 1,
+                  time: 2000, 
+                end:function(){
+                   window.location.href ="{:url('address/index')}";
+                }
+                });
+           }else{
+                 layer.msg('添加失败');
+           }
+      });
+
+
+
+
+  }
+    //手机号
+    function isPhoneNo(phone) {
+     var pattern = /^1[34578]\d{9}$/;
+     return pattern.test(phone);
+    }
+    //姓名
+    function isChinaName(name) {
+     var pattern = /^[\u4E00-\u9FA5]{1,6}$/;
+     return pattern.test(name);
+    }
+
+    
+</script>
+</body>
+</html>

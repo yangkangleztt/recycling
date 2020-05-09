@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="textml; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta content="telephone=no" name="format-detection">
+<meta charset="utf-8">
+<title>反馈建议</title>
+<link href="/static/user/css/all.css" rel="stylesheet" type="text/css" />
+<link href="/static/user/css/content.css?v=<?php echo time() ?>" rel="stylesheet" type="text/css" />
+
+<script type="text/javascript" src="/static/user/js/jquery-1.6.2.min.js"></script>
+<script type="text/javascript" src="/static/user/layui/layui.all.js"></script>
+<!-- <script type="text/javascript" src="/static/user/layui/css/layui.css"></script> -->
+</head>
+
+<body style="background-color:#f2f2f2;">
+
+
+<div class="wrap">
+
+<!--反馈建议 start-->
+<form class="layui-form" method="post">
+<div class="fkjy px22">
+
+   <p><input type="text" name="username" value="" placeholder="请输入您的姓名" / id="username"></p>
+   <p><input type="text" name="username" value="" placeholder="请输入您的手机号"  id="phone"/></p>
+   
+   <span> 
+   <textarea id="message" name="message" maxlength="100" placeholder="请输入反馈意见（最多100字哦）"></textarea>
+   <em><font  id="name_word">0</font>/100</em>
+   </span>
+
+</div>
+
+
+
+
+ <!--提交 start-->
+
+ <div class="fkjytj px22">
+{:token('__token__', 'sha1')}
+     <p><input type="submit" value="提交"  lay-submit lay-filter="login"/></p>
+ </div>
+ 
+ 
+
+</form>
+
+
+
+
+<!--footer start-->
+
+<div style="height:1.5em" class="kong"></div>
+
+
+{include file="public/bottom" /}
+
+<!--footer end-->
+
+
+ 
+</div>
+<script>
+
+  $(function(){ 
+
+   /*input字数*/
+   /*在页面刚载入时先显示出输入框的字数*/
+   var text1=$("#message").val();
+   var counter1=text1.length;
+   $("#name_word").text(counter1);
+   /*添加触发事件进行动态计算输入框的字数*/
+    $("#message").keydown(function(){
+     var text=$("#message").val();
+     var counter=text.length;
+     if(counter >= 100){
+        layer.msg('字体过多');
+         return false;
+     }
+     $("#name_word").text(counter);
+     });
+  });
+
+//Demo
+layui.use('form', function(){
+  var form = layui.form;
+
+  //监听提交
+  form.on('submit(login)', function(data){
+    //正则姓名
+    var username = $('#username').val();
+    if(isChinaName(username) == false){
+        layer.msg('请填写正确姓名');
+        return false;
+    }
+    //正则手机号
+    var moblie = $('#phone').val();
+    if(isPhoneNo(moblie) == false){
+        layer.msg('请填写正确的手机号');
+        return false;
+    }
+
+    var text = $('#message').val();
+    if (text == '') {
+        layer.msg('请填写反馈意见');
+        return false;
+    }
+
+     $.ajax({
+        url:"{:url('user/feedback/feebback_add')}",
+        type:'post',
+        data:{phone:moblie,name:username,content:text},
+        success:function(data){
+          if(data.status == 'success'){
+              layer.msg(data.msg);
+          }
+           if(data.status == 'error'){
+              layer.msg(data.msg);
+          }
+        }
+
+      });
+     return false;
+  });
+       return false;
+});
+//手机号
+function isPhoneNo(phone) {
+ var pattern = /^1[34578]\d{9}$/;
+ return pattern.test(phone);
+}
+//姓名
+function isChinaName(name) {
+ var pattern = /^[\u4E00-\u9FA5]{1,6}$/;
+ return pattern.test(name);
+}
+</script>
+</body>
+</html>

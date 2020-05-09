@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="textml; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta content="telephone=no" name="format-detection">
+<meta charset="utf-8">
+<title>预约下单</title>
+<link href="/static/user/css/all.css" rel="stylesheet" type="text/css" />
+<link href="/static/user/css/content.css?v=<?php echo time(); ?>" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="/static/user/js/jQuery1.7.js"></script>
+<link rel="stylesheet" href="/static/user/css/pickuptime.css" />
+<script type="text/javascript" src="/static/user/js/jquery.min.js"></script>
+<script type="text/javascript" src="/static/user/js/pickuptime.min.js" ></script>
+</head>
+
+<body style="background-color:#f2f2f2; ">
+
+
+<div class="wrap">
+
+<!--填写地址 start-->
+{empty name="address_info"}
+  <div class="txhsdz px22">
+     <a href="{:url('address/index')}"><p><span>请填写回收地址</span><em><img src="/static/user/images/b4.png" width="100%;"/></em></p></a>
+  </div>
+{else /}
+
+  <a href="{:url('address/index')}"><div class="xzwdz px22">
+     <p>
+     <span class="txdz">
+      <input type="hidden" name="id" value="{$address_info.id}" id="address_id">
+     <em>{$address_info.username} {$address_info.phone}</em>
+     <em style=" font-size:0.8em; color:#999;">{$address_info.province}{$address_info.city}{$address_info.district}{$address_info.address_details}</em>
+     </span>
+     </p>
+  </div></a>
+{/empty}
+  <div class="zdjgxx px22">
+    <!--指导价格 start-->
+    <div class="jrzdj">
+      
+      <div class="jgyg">
+        <p>今日指导价</p>
+        <span>0.5~1.6元/公斤</span>
+      </div>
+      
+      <div class="fljg">
+        <ul>
+          <li><p>黄纸<em>（包装箱，快递箱等黄纸箱）</em></p><span>0.90/公斤</span></li>
+          <li><p>统纸<em>（花纸，黄纸混合）</em></p><span>0.80/公斤</span></li>
+          <li><p>废纸<em>（废纸张）</em></p><span>0.60/公斤</span></li>
+        </ul>
+      </div>
+    </div>
+  <!--可选预估重量 start-->
+   <div class="kxygzl">
+      <div class="zlbt">
+        <p><span>可选预估重量</span><em>（小于10公斤不保证上门回收）</em></p>
+      </div>
+      <div class="zllb">
+        <ul>
+          <input type="hidden" name="weight_id" value="" id="weight_id">
+          {volist name="goods_weight" id="v"}
+            <li class="snav" data-id="{$v.id}">{$v.depict} </li>
+          {/volist}
+        </ul>
+      </div>
+   </div>
+  
+  <!--预约时间 start-->
+
+  
+   <div class="kxygzl">
+      
+      <div class="zlbt">
+        <p><span>预约时间</span></p>
+      </div>
+      <div class="xzsjsm">
+        <ul>
+          <input type="hidden" name="time" value="" id="order_time">
+          <li class='test' id='test'>选择时间</li>
+          <li style=" border:none; background-color:#fff;" class='test' id="sj"></li>
+          <li class="slide-item">尽快上门</li>
+        </ul>
+      </div>
+   </div>
+
+  </div>
+
+
+
+
+
+
+ <!--提交 start-->
+
+ <div class="yjyyxd px22">
+     <p><input type="button" value="一键预约" onclick="button();"></p>
+ </div>
+
+
+
+<script type="text/javascript">
+   function button()
+   {
+       var address = $('#address_id').val();
+       var weight_id = $('#weight_id').val();
+       var order_time = $('#order_time').val();
+
+       if(address == '')
+       {
+           layer.mag('请填写回收地址');
+       }
+       if(weight_id == '')
+       {
+           layer.mag('请选择预估重量');
+       }
+       if(order_time == '')
+       {
+           layer.mag('请选择预约时间');
+       }
+
+
+       $.post("{:url('goods/order')}",{address:address,weight_id:weight_id,order_time:order_time},function(start){
+            console.log(start);
+       });
+
+       
+   }
+</script>
+
+<script type="text/javascript">
+    //重量选择
+    $(".snav").click(function(){
+       $(this).addClass("active");
+       var  weight_id = $(this).attr('data-id');
+       $("#weight_id").attr("value",weight_id);
+       $(this).siblings().removeClass("active");
+     })
+	   $(".slide-item").click(function(){
+       $(this).addClass("active");
+       $(this).siblings().removeClass("active");
+      });
+</script>
+
+
+
+
+<script type="text/javascript">
+$(document).ready(function(){
+	$('#test').on('click',function(){
+		//数字为正整数，0表示当天可取
+		pickuptime.init(0,function(data){
+		//	console.log(data.split(" "));//回调
+      $("#order_time").attr("value",data.split(" "));
+			$("#sj").html(data.split(" "));
+		});
+	});
+});
+</script>
+
+ 
+</div>
+</body>
+</html>

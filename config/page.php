@@ -12,5 +12,6 @@ return [
     'orderPage'     =>30,
     'userPage'      =>50,
     'bannerPage'    =>5,
-    'feedbackPage'  =>20
+    'feedbackPage'  =>20,
+    'servicePage'   =>5
 ];

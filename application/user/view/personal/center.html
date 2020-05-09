@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="textml; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta content="telephone=no" name="format-detection">
+<meta charset="utf-8">
+<title>个人中心</title>
+<link href="/static/user/css/all.css" rel="stylesheet" type="text/css" />
+<link href="/static/user/css/content.css?v=<?php echo time() ?>" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<div  style="background-color:#fff;background-image:url(/static/user/images/a14.png); background-position: left top; background-repeat:no-repeat; background-size:100%;" class="wrap">
+
+<!--个人中心 start-->
+
+<div class="txxm px22">
+  <p><img src="{$userinfo.headimgurl}" width="100%;" /></p>
+  <span>{$nickname}</span>
+</div>
+
+
+
+<div class="hsdd px22">
+  <div class="ckqbdd">
+     <p><span>回收订单</span><em><a href="#">全部订单</a></em></p>
+  </div>
+  <div class="hsddzt">
+     <ul>
+       <li><p><img src="/static/user/images/a16.png" width="100%;"/></p><span>待服务</span></li>
+       <li><p><img src="/static/user/images/a17.png" width="100%;"/></p><span>服务中</span></li>
+       <li><p><img src="/static/user/images/a18.png" width="100%;"/></p><span>已完成</span><em>3</em></li>
+       <li><p><img src="/static/user/images/a19.png" width="100%;"/></p><span>已取消</span></li>
+     </ul>
+  </div>
+</div>
+
+
+
+
+
+
+<div class="fwzxnr px22">
+   <ul>
+     <li><a href="#"><p><img src="/static/user/images/a21.png" width="100%;"/></p><span>积分商城</span></a></li>
+     <li><a href="{:url('address/index')}"><p><img src="/static/user/images/a22.png" width="100%;"/></p><span>地址管理</span></a></li>
+     <li><a href="#"><p><img src="/static/user/images/a23.png" width="100%;"/></p><span>兑换订单</span></a></li>
+     <li><a href="{:url('feedback/index')}"><p><img src="/static/user/images/a24.png" width="100%;"/></p><span>意见反馈</span></a></li>
+     <li><a href="{:url('feedback/about')}"><p><img src="/static/user/images/a25.png" width="100%;"/></p><span>关于我们</span></a></li>
+     <li><a href="#"><p><img src="/static/user/images/a26.png" width="100%;"/></p><span>联系我们</span></a></li>
+   </ul>
+</div>
+
+
+
+
+<!--footer start-->
+
+<div style="height:1.5em" class="kong"></div>
+
+
+{include file="public/bottom" /}
+<!--footer end-->
+
+
+
+
+ 
+ 
+ 
+</div>
+</body>
+</html>

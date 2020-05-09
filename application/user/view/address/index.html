@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="textml; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta content="telephone=no" name="format-detection">
+<meta charset="utf-8">
+<title>地址列表</title>
+<link href="/static/user/css/all.css" rel="stylesheet" type="text/css" />
+<link href="/static/user/css/content.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body style="background-color:#f2f2f2; ">
+
+
+<div class="wrap">
+
+<!--地址列表 start-->
+
+{volist name="address_data" id="v"}
+<div class="dzlbnr px22">
+  <a href="{:url('goods/index',['aid'=>$v.id])}"><p class="xmdh"><span>{$v.username}</span><span style=" margin-left:5%;">{$v.phone}</span>
+  	<a href=""><em><img src="/static/user/images/b2.png" width="100%;"/></em></a>
+  </p>
+  <p class="xxdz">{$v.province}{$v.city}{$v.district}{$v.address_details}</p></a>
+</div>
+{/volist}
+
+<!--添加地址 start-->
+<div class="lbxjdz px22">
+  <p><a href="{:url('address/user_address')}"><input type="button" value="+新建收货地址" /></a></p>
+</div>
+ 
+ 
+</div>
+</body>
+</html>
